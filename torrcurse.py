@@ -6,9 +6,19 @@ import os.path
 import configparser
 
 selectedOption = 0
+searchString = "this is some long test string that is just meant to be a long test string that is just meant to be a long test string that is meant to be just a long... yeah you get the idea"
+searchStringPos = 0
+searchBoxButtonText = "Search"
+
+#windows
+searchBox = 0
+searchWindow = 0
 
 
 def main(stdscr):
+	global searchWindow
+	global searchBox
+
 	stdscr.clear()
 	stdscr.refresh()
 
@@ -21,6 +31,11 @@ def main(stdscr):
 
 	#create search window
 	searchWindow = curses.newwin(7, stdscr.getmaxyx()[1], 0, 0)
+
+	#create search box for search window (the thing you type into)
+	searchBox = curses.newwin(3,
+		searchWindow.getmaxyx()[1] - 2 - len(searchBoxButtonText), 1, 1)
+
 	searchWindow.box(0, 0)
 	drawSearchWindow(searchWindow)
 
@@ -29,33 +44,33 @@ def main(stdscr):
 
 
 def drawSearchWindow(searchWindow):
-	searchBoxButton = "Search"
+	global searchBox
 
 	searchWindow.move(0, 2)
 	searchWindow.addstr("Search", curses.color_pair(1) | curses.A_BOLD)
 
 	#add searchbutton
-	searchWindow.move(2, searchWindow.getmaxyx()[1] - len(searchBoxButton) - 1)
+	searchWindow.move(2,
+		searchWindow.getmaxyx()[1] - len(searchBoxButtonText) - 1)
+
 	if selectedOption == 1:
-		searchWindow.addstr(searchBoxButton,
+		searchWindow.addstr(searchBoxButtonText,
 			curses.color_pair(3) | curses.A_BOLD)
 	else:
-		searchWindow.addstr(searchBoxButton,
+		searchWindow.addstr(searchBoxButtonText,
 			curses.color_pair(2) | curses.A_BOLD)
 
 	#create search box
-	searchBox = curses.newwin(3,
-		searchWindow.getmaxyx()[1] - 2 - len(searchBoxButton), 1, 1)
 	searchBox.box(0, 0)
 	drawSearchBox(searchBox)
 
 	#use a pad for the entered string
-	searchStringPad = curses.newpad(1, 160)
-	searchStringPad.addstr("012345678912345678|912345678|912345678|912345678|912345678|9")
+	searchStringPad = curses.newpad(1, len(searchString) + 1)
+	searchStringPad.addstr(searchString)
 
 	searchWindow.refresh()
 	searchBox.refresh()
-	searchStringPad.refresh(0, 0, 5, 5, 20, 75)
+	searchStringPad.refresh(0, 0, 2, 2, 2, searchBox.getmaxyx()[1] - 1)
 
 
 def drawSearchBox(searchBox):
