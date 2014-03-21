@@ -1,3 +1,4 @@
+#windows
 from curses import wrapper
 from os.path import expanduser
 import curses
@@ -8,6 +9,7 @@ import configparser
 selectedOption = 0
 searchString = "this is some long test string that is just meant to be a long test string that is just meant to be a long test string that is meant to be just a long... yeah you get the idea"
 searchStringPos = 0
+searchStringPadPos = 0
 searchBoxButtonText = "Search"
 
 #windows
@@ -16,6 +18,7 @@ searchWindow = 0
 
 
 def main(stdscr):
+	global searchStringPos
 	global searchWindow
 	global searchBox
 
@@ -40,11 +43,25 @@ def main(stdscr):
 	drawSearchWindow(searchWindow)
 
 	while True:
-		pass
+		key = stdscr.getch()
+		#stdscr.addstr(stdscr.getmaxyx()[0] - 1,
+		#	stdscr.getmaxyx()[1] - 1 - len(str(key)), str(key) + "")
+
+		if key == 0:
+			pass
+		if key == 261:
+			#right
+			searchStringPos = searchStringPos + 1
+			drawSearchWindow(searchWindow)
+
+		if key == 260:
+			#left
+			pass
 
 
 def drawSearchWindow(searchWindow):
 	global searchBox
+	global searchStringPadPos
 
 	searchWindow.move(0, 2)
 	searchWindow.addstr("Search", curses.color_pair(1) | curses.A_BOLD)
@@ -60,6 +77,11 @@ def drawSearchWindow(searchWindow):
 		searchWindow.addstr(searchBoxButtonText,
 			curses.color_pair(2) | curses.A_BOLD)
 
+	#move cursor and pad
+	if searchStringPos > searchBox.getmaxyx()[1] - 3:
+		searchStringPadPos = searchStringPadPos + 1
+	searchBox.move(1, 1 + searchStringPos - searchStringPadPos)
+
 	#create search box
 	searchBox.box(0, 0)
 	drawSearchBox(searchBox)
@@ -70,7 +92,7 @@ def drawSearchWindow(searchWindow):
 
 	searchWindow.refresh()
 	searchBox.refresh()
-	searchStringPad.refresh(0, 0, 2, 2, 2, searchBox.getmaxyx()[1] - 1)
+	searchStringPad.refresh(0, 0 + searchStringPadPos, 2, 2, 2, searchBox.getmaxyx()[1] - 1)
 
 
 def drawSearchBox(searchBox):
