@@ -7,7 +7,7 @@ import os.path
 import configparser
 
 selectedOption = 0
-searchString = "ugh i don't really want to have to type antother wont tf these things tub ti thits thingog to by tose kidn fof sdthowrht sothey"
+searchString = ""
 searchStringPos = 0
 searchStringPadPos = 0
 searchBoxButtonText = "Search"
