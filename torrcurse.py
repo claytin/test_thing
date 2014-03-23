@@ -7,7 +7,7 @@ import os.path
 import configparser
 
 selectedOption = 0
-searchString = ""
+searchString = "ugh i don't really want to have to type antother wont tf these things tub ti thits thingog to by tose kidn fof sdthowrht sothey"
 searchStringPos = 0
 searchStringPadPos = 0
 searchBoxButtonText = "Search"
@@ -20,6 +20,7 @@ searchWindow = 0
 def main(stdscr):
 	global searchString
 	global searchStringPos
+	global searchStringPadPos
 	global searchWindow
 	global searchBox
 
@@ -63,6 +64,8 @@ def main(stdscr):
 		if key == 127 and searchStringPos > 0:
 			searchString = searchString[:searchStringPos - 1] + \
 				searchString[searchStringPos:]
+			if searchStringPadPos > 0:
+				searchStringPadPos -= 1
 			searchStringPos -= 1
 			drawSearchWindow()
 
@@ -104,7 +107,7 @@ def drawSearchWindow():
 	#create search box
 	searchBox.box(0, 0)
 
-	#use a pad for the entered string
+	#create a new pad every time because... i don't want to find a better way
 	searchStringPad = curses.newpad(1, len(searchString) + 1)
 	searchStringPad.addstr(searchString)
 
@@ -113,6 +116,16 @@ def drawSearchWindow():
 	searchStringPad.refresh(0, 0 + searchStringPadPos,
 		2, 2, 2, searchBox.getmaxyx()[1] - 1)
 
+	#draw some nice arrows to indicate text box overflow
+	if len(searchString) > searchBox.getmaxyx()[1] - 3:
+		if len(searchString) - searchBox.getmaxyx()[1] > searchStringPadPos - 2:
+			searchBox.move(0, searchBox.getmaxyx()[1] - 2)
+			searchBox.addstr("\u2192")
+		if searchStringPadPos > 0:
+			searchBox.move(0, 1)
+			searchBox.addstr("\u2190")
+
+	#this has to be done last because it sets the cursor position
 	searchBox.move(1, 1 + searchStringPos - searchStringPadPos)
 	searchBox.refresh()
 
