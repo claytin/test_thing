@@ -7,7 +7,7 @@ import os.path
 import configparser
 
 selectedOption = 0
-searchString = "this is some long test string that is just meant to be a long test string that is just meant to be a long test string that is meant to be just a long... yeah you get the idea"
+searchString = ""
 searchStringPos = 0
 searchStringPadPos = 0
 searchBoxButtonText = "Search"
@@ -18,6 +18,7 @@ searchWindow = 0
 
 
 def main(stdscr):
+	global searchString
 	global searchStringPos
 	global searchWindow
 	global searchBox
@@ -40,7 +41,7 @@ def main(stdscr):
 		searchWindow.getmaxyx()[1] - 2 - len(searchBoxButtonText), 1, 1)
 
 	searchWindow.box(0, 0)
-	drawSearchWindow(searchWindow)
+	drawSearchWindow()
 
 	while True:
 		key = stdscr.getch()
@@ -50,16 +51,39 @@ def main(stdscr):
 		if key == 0:
 			pass
 		if key == 261:
-			#right
-			searchStringPos = searchStringPos + 1
-			drawSearchWindow(searchWindow)
-
+			moveSelect("right")
 		if key == 260:
-			#left
-			pass
+			moveSelect("left")
+		if key >= 32 and key <= 126:
+			searchString = searchString[:searchStringPos] + \
+				str(chr(key)) + searchString[searchStringPos:]
+			#searchStringPos += 1
+			moveSelect("right")
+			#drawSearchWindow()
+		if key == 127 and searchStringPos > 0:
+			searchString = searchString[:searchStringPos - 1] + \
+				searchString[searchStringPos:]
+			searchStringPos -= 1
+			drawSearchWindow()
 
 
-def drawSearchWindow(searchWindow):
+def moveSelect(direction):
+	global searchStringPos
+	global searchStringPadPos
+
+	if direction == "right" and searchStringPos < len(searchString):
+		if searchStringPos - searchStringPadPos > searchBox.getmaxyx()[1] - 4:
+			searchStringPadPos += 1
+		searchStringPos += 1
+		drawSearchWindow()
+	elif direction == "left" and searchStringPos > 0:
+		if searchStringPos - searchStringPadPos < 1:
+			searchStringPadPos -= 1
+		searchStringPos -= 1
+		drawSearchWindow()
+
+
+def drawSearchWindow():
 	global searchBox
 	global searchStringPadPos
 
@@ -77,14 +101,8 @@ def drawSearchWindow(searchWindow):
 		searchWindow.addstr(searchBoxButtonText,
 			curses.color_pair(2) | curses.A_BOLD)
 
-	#move cursor and pad
-	if searchStringPos > searchBox.getmaxyx()[1] - 3:
-		searchStringPadPos = searchStringPadPos + 1
-	searchBox.move(1, 1 + searchStringPos - searchStringPadPos)
-
 	#create search box
 	searchBox.box(0, 0)
-	drawSearchBox(searchBox)
 
 	#use a pad for the entered string
 	searchStringPad = curses.newpad(1, len(searchString) + 1)
@@ -92,11 +110,11 @@ def drawSearchWindow(searchWindow):
 
 	searchWindow.refresh()
 	searchBox.refresh()
-	searchStringPad.refresh(0, 0 + searchStringPadPos, 2, 2, 2, searchBox.getmaxyx()[1] - 1)
+	searchStringPad.refresh(0, 0 + searchStringPadPos,
+		2, 2, 2, searchBox.getmaxyx()[1] - 1)
 
-
-def drawSearchBox(searchBox):
-	pass
+	searchBox.move(1, 1 + searchStringPos - searchStringPadPos)
+	searchBox.refresh()
 
 #get config before calling ncurses
 home_dir = expanduser("~")
